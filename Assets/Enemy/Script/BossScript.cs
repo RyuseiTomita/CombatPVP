@@ -6,10 +6,12 @@ using UnityEngine.UIElements;
 
 public class BossScript : MonoBehaviour
 {
-	float modelTime = 5f;
+	float modelTime = 35f;
+	float m_attackTime = 5f;
 
 	float m_spped = 2;
 	bool m_transform;
+	bool m_onAttack;
 	Transform m_player;
 	Animator m_animator;
 
@@ -53,26 +55,8 @@ public class BossScript : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
-		modelTime -= Time.deltaTime;
-
-		if(modelTime <= 0)
-		{
-			m_animator.SetTrigger("Transform");
-			m_sounds.Play2D(BossSound.Type.ModeChange);
-			m_transform = true;
-			modelTime = 15;
-
-			if(m_modelIndex == (int)ModelType.IceModel)
-			{
-				m_iceBoss.IceEffectChange(true);
-			}
-			else
-			{
-				m_fireBoss.FireEffectChange(true);
-			}
-			
-		}
-
+		ModelTime();
+		BossAttackTime();
 		if (m_transform) return;
 
 		// プレイヤーを向く
@@ -94,6 +78,44 @@ public class BossScript : MonoBehaviour
 
 		m_animator.SetBool("Move", isMove);
     }
+
+	// 属性切り替え時間
+	private void ModelTime()
+	{
+		modelTime -= Time.deltaTime;
+
+		if (modelTime <= 0)
+		{
+			m_animator.SetTrigger("Transform");
+			m_sounds.Play2D(BossSound.Type.ModeChange);
+			m_transform = true;
+			modelTime = 15;
+
+			if (m_modelIndex == (int)ModelType.IceModel)
+			{
+				m_iceBoss.IceEffectChange(true);
+			}
+			else
+			{
+				m_fireBoss.FireEffectChange(true);
+			}
+
+		}
+	}
+
+	// 攻撃技
+	private void BossAttackTime()
+	{
+		bool isAttack = false;
+		m_attackTime -= Time.deltaTime;
+
+		if (m_attackTime <= 0　&& !isAttack)
+		{
+			isAttack = true;
+			m_transform = true;
+			m_model[(int)ModelType.IceModel].GetComponent<IceBoss>().FrostStormAttack();
+		}
+	}
 
 	// 属性チェンジ
 	public void Transform()
@@ -123,7 +145,7 @@ public class BossScript : MonoBehaviour
 	public void TransformComplete()
 	{
 		m_transform = false;
-		m_iceBoss.IceEffectChange(false);
+		m_model[(int)ModelType.IceModel].GetComponent<IceBoss>().IceEffectChange(false);
 		m_fireBoss.FireEffectChange(false);
 		Debug.Log("入った");
 	}

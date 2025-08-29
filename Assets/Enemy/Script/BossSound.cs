@@ -13,7 +13,7 @@ public class BossSound : MonoBehaviour
 		public AudioClip sound;
 	}
 
-   public enum Type
+	public enum Type
 	{
 		ModeChange,
 	}

@@ -4,37 +4,62 @@ using UnityEngine;
 
 public class IceBoss : MonoBehaviour
 {
+	Animator m_animator;
 
 	[SerializeField]
 	GameObject[] m_iceEffects;
 
+	[SerializeField]
+	GameObject[] m_predictionRangeEffect;
+
 	public enum IceEffectType
 	{
-		IceChange
+		IceChange,
 	}
 
 	public enum IceBossAttack
 	{
+		FrostStorm,
+		FrostStormAttack,
+	}
 
+	// 予測範囲攻撃のエフェクト
+	public enum PredictionRange
+	{
+		FrostStormRange,
 	}
 
 	// Start is called before the first frame update
 	void Start()
 	{
-
+		m_animator = GetComponent<Animator>();
 	}
 
 	// Update is called once per frame
-	void Update()
+	void FixedUpdate()
 	{
 
 	}
 
+	// エフェクトの切り替え
 	public void IceEffectChange(bool ice)
 	{
 		if(!ice) m_iceEffects[(int)IceEffectType.IceChange].SetActive(false);
 
 		else m_iceEffects[(int)IceEffectType.IceChange].SetActive(true);
 	}
-    
+
+	public  void FrostStormAttack()
+	{
+		m_animator.SetTrigger("FrostStorm");
+
+	}
+
+	public void FrostStormEffect()
+	{
+		m_predictionRangeEffect[(int)PredictionRange.FrostStormRange].SetActive(true);
+	}
+
+
+
 }
