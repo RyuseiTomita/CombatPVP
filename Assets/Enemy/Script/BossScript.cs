@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -23,13 +24,27 @@ public class BossScript : MonoBehaviour
 		FireModel
 	}
 
+	private BossSound m_sounds;
+	private FireSound m_fireSound;
+	private IceSound m_iceSound;
+	private IceBoss m_iceBoss;
+	private FireBoss m_fireBoss;
+
 	// Start is called before the first frame update
 	void Start()
 	{
 		m_model[(int)ModelType.IceModel].SetActive(true);
 		m_model[(int)ModelType.FireModel].SetActive(false);
+
 		m_player = GameObject.FindWithTag("Player").transform;
+
 		m_animator = m_model[(int)ModelType.IceModel].GetComponent<Animator>();
+
+		m_sounds = GetComponent<BossSound>();
+		m_fireSound = GetComponent<FireSound>();
+		m_iceSound = GetComponent<IceSound>();
+		m_iceBoss = GetComponent<IceBoss>();
+		m_fireBoss = GetComponent<FireBoss>();
 		m_modelIndex = (int)ModelType.IceModel;
 		m_transform = true;
 		m_modelIndex = 0;
@@ -43,8 +58,19 @@ public class BossScript : MonoBehaviour
 		if(modelTime <= 0)
 		{
 			m_animator.SetTrigger("Transform");
+			m_sounds.Play2D(BossSound.Type.ModeChange);
 			m_transform = true;
 			modelTime = 15;
+
+			if(m_modelIndex == (int)ModelType.IceModel)
+			{
+				m_iceBoss.IceEffectChange(true);
+			}
+			else
+			{
+				m_fireBoss.FireEffectChange(true);
+			}
+			
 		}
 
 		if (m_transform) return;
@@ -69,29 +95,36 @@ public class BossScript : MonoBehaviour
 		m_animator.SetBool("Move", isMove);
     }
 
+	// 属性チェンジ
 	public void Transform()
 	{
+		// アイス状態だったら
 		if(m_modelIndex == (int)ModelType.IceModel)
 		{
 			m_model[(int)ModelType.IceModel].SetActive(false);
 			m_model[(int)ModelType.FireModel].SetActive(true);
-
+			m_fireSound.Play2D(FireSound.FireType.FireChange);
 			m_animator = m_model[(int)ModelType.FireModel].GetComponent<Animator>();
 			m_modelIndex = (int)ModelType.FireModel;
 		}
+		// ファイヤー状態だったら
 		else
 		{
 			m_model[(int)ModelType.IceModel].SetActive(true);
 			m_model[(int)ModelType.FireModel].SetActive(false);
+			m_iceSound.Play2D(IceSound.IceType.IceChange);
 			m_animator = m_model[(int)ModelType.IceModel].GetComponent<Animator>();
 			m_modelIndex = (int)ModelType.IceModel;
 		}
 		
 	}
 
+	// 完全に切り替わったら
 	public void TransformComplete()
 	{
 		m_transform = false;
+		m_iceBoss.IceEffectChange(false);
+		m_fireBoss.FireEffectChange(false);
 		Debug.Log("入った");
 	}
 }
