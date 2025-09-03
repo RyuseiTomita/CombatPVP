@@ -12,9 +12,12 @@ public class IceBoss : MonoBehaviour
 	[SerializeField]
 	GameObject[] m_predictionRangeEffect;
 
+	IceSound m_iceSound;
+
 	public enum IceEffectType
 	{
 		IceChange,
+		FrostStormAttackEffect,
 	}
 
 	public enum IceBossAttack
@@ -33,6 +36,7 @@ public class IceBoss : MonoBehaviour
 	void Start()
 	{
 		m_animator = GetComponent<Animator>();
+		m_iceSound = GetComponent<IceSound>();
 	}
 
 	// Update is called once per frame
@@ -44,16 +48,35 @@ public class IceBoss : MonoBehaviour
 	// エフェクトの切り替え
 	public void IceEffectChange(bool ice)
 	{
-		if(!ice) m_iceEffects[(int)IceEffectType.IceChange].SetActive(false);
-
-		else m_iceEffects[(int)IceEffectType.IceChange].SetActive(true);
+		if (!ice)
+		{
+			m_iceEffects[(int)IceEffectType.IceChange].SetActive(false);
+		}
+		else
+		{
+			m_iceEffects[(int)IceEffectType.IceChange].SetActive(true);
+		}
 	}
+
+	public void ModelChangeSound()
+	{
+		m_iceSound.Play2D(IceSound.IceType.IceChangeSound);
+	}
+
 
 	public  void FrostStormAttack()
 	{
-		m_animator.SetTrigger("FrostStorm");
+		m_iceEffects[(int)IceEffectType.FrostStormAttackEffect].SetActive(true);
+		m_predictionRangeEffect[(int)PredictionRange.FrostStormRange].SetActive(false);
 
+		m_iceSound.Play2D(IceSound.IceType.FrostStormAttackSound);
 	}
+
+	public void FrostStormSound()
+	{
+		m_iceSound.Play2D(IceSound.IceType.FrostStormSound);
+	}
+
 
 	public void FrostStormEffect()
 	{

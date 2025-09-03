@@ -15,7 +15,7 @@ public class FireSound : MonoBehaviour
    
 	public enum FireType
 	{
-		FireChange,
+		FireChangeSound,
 	}
 
 	[SerializeField] List<FireSoundData> m_fireSounds;

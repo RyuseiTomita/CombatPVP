@@ -15,7 +15,9 @@ public class IceSound : MonoBehaviour
 
 	public enum IceType
 	{
-		IceChange,
+		IceChangeSound,
+		FrostStormSound,
+		FrostStormAttackSound,
 	}
 
 	[SerializeField] List<IceSoundData> m_iceSounds;

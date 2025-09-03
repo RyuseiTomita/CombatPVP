@@ -13,19 +13,17 @@ public class Player : MonoBehaviour
 	[SerializeField]
 	Camera m_camera;
 
-	private Rigidbody rb;
-	private Transform m_transform;
-	private PlayerInput m_playerInput;
-	private Vector2 m_inputMove;
-	private CharacterController m_characterController;
-	private float m_verticalVelocity;
-	private float m_turnVelocity;
-
+	 Animator m_animator;
+	 Transform m_transform;
+	 PlayerInput m_playerInput;
+	 Vector2 m_inputMove;
+	 CharacterController m_characterController;
+	 float m_verticalVelocity;
 
 	private void Awake()
 	{
-		rb = GetComponent<Rigidbody>();
 		m_transform = GetComponent<Transform>();
+		m_animator = GetComponent<Animator>();
 		m_playerInput = GetComponent<PlayerInput>();
 		m_characterController = GetComponent<CharacterController>();
 	}
@@ -33,7 +31,6 @@ public class Player : MonoBehaviour
 	void Start()
     {
       
-
 	}
 
 	public void OnEnable()
@@ -56,11 +53,20 @@ public class Player : MonoBehaviour
 	public void OnMoveCancel(InputAction.CallbackContext context)
 	{
 		m_inputMove = context.ReadValue<Vector2>();
+
+		m_animator.SetBool("Run", false);
 	}
 
 	public void OnJump(InputAction.CallbackContext context)
 	{
 
+	}
+
+	public void ResetTrigger()
+	{
+		// m_canMove = true;
+		//m_animator.ResetTrigger("Attack");
+		//m_animator.ResetTrigger("SkillSword");
 	}
 
 	// Update is called once per frame
@@ -87,22 +93,12 @@ public class Player : MonoBehaviour
 
 		if(m_inputMove != Vector2.zero)
 		{
-			// 操作入力からY軸周りの目標角度[deg]を計算
-			var targetAngleY = -Mathf.Atan2(m_inputMove.y, m_inputMove.x) * Mathf.Rad2Deg + 90;
+			m_animator.SetBool("Run", true);
 
-			// カメラの角度分だけ振り向く角度を補正
-			targetAngleY += cameraAngleY;
-
-			// イージングしながら次の回転速度[deg]を計算
-			var angleY = Mathf.SmoothDampAngle(
-				m_transform.eulerAngles.y,
-				targetAngleY,
-				ref m_turnVelocity,
-				0.1f
-			);
-
-			// オブジェクトの回転を更新
-			m_transform.rotation = Quaternion.Euler(0, angleY, 0);
+			transform.rotation = Quaternion.Lerp(
+				transform.rotation,
+				Quaternion.LookRotation(Vector3.Scale(moveVelocity, new Vector3(1, 0, 1))),
+				0.5f);
 		}
     }
 }

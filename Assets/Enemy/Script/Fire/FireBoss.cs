@@ -12,6 +12,13 @@ public class FireBoss : MonoBehaviour
 		fireChange
 	}
 
+	FireSound m_fireSound;
+
+	void Awake()
+	{
+		m_fireSound = GetComponent<FireSound>();
+	}
+
 	public void FireEffectChange(bool fire)
 	{
 		if (!fire) m_fireEffects[(int)FireEffectType.fireChange].SetActive(false);
@@ -19,11 +26,11 @@ public class FireBoss : MonoBehaviour
 		else m_fireEffects[(int)FireEffectType.fireChange].SetActive(true);
 	}
 	
-	// Start is called before the first frame update
-	void Start()
-    {
-        
-    }
+	public void ModelChangeSound()
+	{
+		m_fireSound.Play2D(FireSound.FireType.FireChangeSound);
+		Debug.Log("a");
+	}
 
     // Update is called once per frame
     void Update()

@@ -15,7 +15,7 @@ public class BossSound : MonoBehaviour
 
 	public enum Type
 	{
-		ModeChange,
+		ModelChange,
 	}
 
 	[SerializeField] List<SoundData> m_sounds;
