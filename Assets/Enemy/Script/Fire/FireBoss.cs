@@ -1,18 +1,31 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static IceBoss;
 
 public class FireBoss : MonoBehaviour
 {
+
+	// 攻撃エフェクト
 	[SerializeField]
 	GameObject[] m_fireEffects;
 
-	public enum FireEffectType
-	{
-		fireChange
-	}
+	// 攻撃予測範囲エフェクト
+	[SerializeField]
+	GameObject[] m_predictionRangeEffect;
 
 	FireSound m_fireSound;
+
+	public enum FireEffectType
+	{
+		fireChange,
+		fireChangeAttack,
+	}
+
+	public enum PredictionRange
+	{
+		FireChangeRange,
+	}
 
 	void Awake()
 	{
@@ -26,10 +39,10 @@ public class FireBoss : MonoBehaviour
 		else m_fireEffects[(int)FireEffectType.fireChange].SetActive(true);
 	}
 	
-	public void ModelChangeSound()
+	public void ModelChange()
 	{
 		m_fireSound.Play2D(FireSound.FireType.FireChangeSound);
-		Debug.Log("a");
+		m_fireEffects[(int)FireEffectType.fireChangeAttack].SetActive(true);
 	}
 
     // Update is called once per frame

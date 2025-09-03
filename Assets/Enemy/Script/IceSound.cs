@@ -18,6 +18,8 @@ public class IceSound : MonoBehaviour
 		IceChangeSound,
 		FrostStormSound,
 		FrostStormAttackSound,
+		FrostBurstChargeSound,
+		FrostBurstAttackSound,
 	}
 
 	[SerializeField] List<IceSoundData> m_iceSounds;

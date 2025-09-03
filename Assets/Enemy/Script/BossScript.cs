@@ -6,7 +6,7 @@ using UnityEngine.UIElements;
 
 public class BossScript : MonoBehaviour
 {
-	float modelTime = 100f;
+	float m_modelTime = 15f;
 	float m_attackTime = 5f;
 
 	float m_spped = 2;
@@ -34,11 +34,12 @@ public class BossScript : MonoBehaviour
 
 	enum FireAttackPattern
 	{
-
+		FireBreath,
+		FireShot,
 	}
 
 
-	private BossSound m_sounds;
+	 BossSound m_sounds;
 
 	// Start is called before the first frame update
 	void Start()
@@ -53,8 +54,7 @@ public class BossScript : MonoBehaviour
 		m_sounds = GetComponent<BossSound>();
 		m_modelIndex = (int)ModelType.IceModel;
 		m_isStop = true;
-		m_modelIndex = 0;
-		m_attackPattern = 0;
+		m_attackPattern = (int)IceAttackPattern.FrostStorm;
 	}
 
     // Update is called once per frame
@@ -62,18 +62,48 @@ public class BossScript : MonoBehaviour
     {
 		if (m_isStop) return;
 
-		ModelTime();
+		m_modelTime -= Time.deltaTime;
 
-		switch (m_attackPattern)
+		if (m_modelTime <= 0)
 		{
-			case (int)IceAttackPattern.FrostStorm:
-				FrostStorm();
-				break;
+			ModelTime();
 
-			case (int)IceAttackPattern.FrostBurst:
-				FrostBurst();
-				break;
+			return;
 		}
+
+
+		m_attackTime -= Time.deltaTime;
+
+		if (m_attackTime <= 0)
+		{
+			if (m_modelIndex == (int)ModelType.IceModel)
+			{
+				switch (m_attackPattern)
+				{
+					case (int)IceAttackPattern.FrostStorm:
+						FrostStorm();
+						break;
+
+					case (int)IceAttackPattern.FrostBurst:
+						FrostBurst();
+						break;
+				}
+			}
+			else
+			{
+				switch(m_attackPattern)
+				{
+					case (int)FireAttackPattern.FireBreath:
+						FireBreath();
+						break;
+
+					case (int)FireAttackPattern.FireShot:
+						FireShot();
+						break;
+				}
+			}
+		}
+		
 
 		// プレイヤーを向く
         Vector3 forward = m_player.position - transform.position;
@@ -98,61 +128,92 @@ public class BossScript : MonoBehaviour
 	// 属性切り替え時間
 	private void ModelTime()
 	{
-		modelTime -= Time.deltaTime;
+		// 歩くのを止める
+		m_isStop = true;
 
-		if (modelTime <= 0)
+		// 変身アニメーション
+		m_animator.SetTrigger("Transform");
+
+		// サウンドを鳴らす
+		m_sounds.Play2D(BossSound.Type.ModelChange);
+
+		// もし現在アイスモデルならアイスエフェクトを生成
+		if (m_modelIndex == (int)ModelType.IceModel)
 		{
-			m_animator.SetTrigger("Transform");
-
-			m_sounds.Play2D(BossSound.Type.ModelChange);
-			m_isStop = true;
-			modelTime = 15;
-
-			// もし現在アイスモデルならアイスエフェクトを生成
-			if (m_modelIndex == (int)ModelType.IceModel)
-			{
-				m_model[(int)ModelType.IceModel].GetComponent<IceBoss>().IceEffectChange(true);
-			}
-			// ファイヤーモデルならファイヤーエフェクトを生成
-			else
-			{
-				m_model[(int)ModelType.FireModel].GetComponent<FireBoss>().FireEffectChange(true);
-			}
-
+			m_model[(int)ModelType.IceModel].GetComponent<IceBoss>().IceEffectChange(true);
+		}
+		// ファイヤーモデルならファイヤーエフェクトを生成
+		else
+		{
+			m_model[(int)ModelType.FireModel].GetComponent<FireBoss>().FireEffectChange(true);
 		}
 	}
 
-	// 攻撃技
+	// 攻撃技(氷)
 	private void FrostStorm()
 	{
-		m_attackTime -= Time.deltaTime;
+		// 歩くのを止める
+		m_isStop = true;
 
-		if (m_attackTime <= 0)
-		{
-			m_isStop = true;
-			m_model[(int)ModelType.IceModel].GetComponent<IceBoss>().FrostStormEffect();
-			m_animator.SetTrigger("FrostStorm");
+		// エフェクトを生成
+		m_model[(int)ModelType.IceModel].GetComponent<IceBoss>().FrostStormEffect();
 
-			StartCoroutine(FrostStormAttack());
-			m_attackTime = 15f;
-		}
+		// アニメーションをする
+		m_animator.SetTrigger("FrostStorm");
+
+		// 次の攻撃に切り替える
+		m_attackPattern = (int)IceAttackPattern.FrostBurst;
+
+		
+		StartCoroutine(FrostStormAttack());
 	}
 
 	IEnumerator FrostStormAttack()
 	{
+		// 3秒後に発生
 		yield return new WaitForSeconds(3);
+
+		// エリアを生成
 		m_model[(int)ModelType.IceModel].GetComponent<IceBoss>().FrostStormAttack();
 	}
 
+	//攻撃技(氷)
 	private void FrostBurst()
 	{
-		m_attackTime -= Time.deltaTime;
+		// 歩くのを止める
+		m_isStop = true;
 
-		if (m_attackTime <= 0)
-		{
-			m_isStop = true;
-			m_animator.SetTrigger("FrostBurst");
-		}
+		// エフェクトを生成
+		m_model[(int)ModelType.IceModel].GetComponent<IceBoss>().FrostBurstEffect(true);
+
+		// アニメーションをする 
+		m_animator.SetTrigger("FrostBurstCharge");
+
+		// 次の攻撃に切り替える
+		m_attackPattern = (int)IceAttackPattern.FrostStorm;
+		
+		
+		StartCoroutine(FrostBurstAttack());
+	}
+
+	IEnumerator FrostBurstAttack()
+	{
+		yield return new WaitForSeconds(3);
+
+		m_model[(int)ModelType.IceModel].GetComponent<IceBoss>().FrostBurstEffect(false);
+		m_animator.SetTrigger("FrostBurstAttack");
+	}
+
+	// 攻撃技(火)
+	private void FireBreath()
+	{
+		m_animator.SetTrigger("");
+	}
+
+	// 攻撃技(火)
+	private void FireShot()
+	{
+
 	}
 
 	// 属性チェンジ
@@ -168,8 +229,8 @@ public class BossScript : MonoBehaviour
 			// ファイヤーモデルを取り込む
 			m_animator = m_model[(int)ModelType.FireModel].GetComponent<Animator>();
 
-			// サウンドを鳴らす
-			m_model[(int)ModelType.FireModel].GetComponent<FireBoss>().ModelChangeSound();
+			// サウンドと攻撃範囲を生成
+			m_model[(int)ModelType.FireModel].GetComponent<FireBoss>().ModelChange();
 
 			// ファイヤーモードに切り替える
 			m_modelIndex = (int)ModelType.FireModel;
@@ -184,8 +245,8 @@ public class BossScript : MonoBehaviour
 			// アイスモデルを取り込む
 			m_animator = m_model[(int)ModelType.IceModel].GetComponent<Animator>();
 
-			// サウンドを鳴らす
-			m_model[(int)ModelType.IceModel].GetComponent<IceBoss>().ModelChangeSound();
+			// サウンドと攻撃範囲を生成
+			m_model[(int)ModelType.IceModel].GetComponent<IceBoss>().ModelChange();
 
 			// アイスモードに切り替える
 			m_modelIndex = (int)ModelType.IceModel;
@@ -201,11 +262,20 @@ public class BossScript : MonoBehaviour
 
 		// エフェクトを消す
 		m_model[(int)ModelType.IceModel].GetComponent<IceBoss>().IceEffectChange(false);
+
+		// 次の変身時間まで
+		m_modelTime = 15f;
+
+		// 攻撃するまで
+		m_attackTime = 5f;
 	}
 
 	public void EnemyMove()
 	{
 		// 動けるようにする
 		m_isStop = false;
+
+		// 攻撃するまで
+		m_attackTime = 5f;
 	}
 }
