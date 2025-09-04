@@ -95,8 +95,6 @@ public class FireBoss : MonoBehaviour
 
 	public void FireBreathEffect()
 	{
-		Debug.Log("af");
-
 		if(m_fireBreathIndex <= 4)
 		{
 			// Œ»ÝUŒ‚’†‚©
