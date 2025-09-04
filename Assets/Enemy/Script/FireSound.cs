@@ -16,6 +16,10 @@ public class FireSound : MonoBehaviour
 	public enum FireType
 	{
 		FireChangeSound,
+		FireBreathAnimationSound,
+		FireBreathRangeSound,
+		FireBreathAttackSound,
+		FireShotCharge,
 	}
 
 	[SerializeField] List<FireSoundData> m_fireSounds;

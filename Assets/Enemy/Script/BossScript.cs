@@ -205,15 +205,31 @@ public class BossScript : MonoBehaviour
 	}
 
 	// 攻撃技(火)
-	private void FireBreath()
+	public void FireBreath()
 	{
-		m_animator.SetTrigger("");
+		// 歩くのを止める
+		m_isStop = true;
+
+		// アニメーションをする
+		m_animator.SetTrigger("FireBreath");
+
+		// 次の攻撃に切り替える
+		m_attackPattern = (int)FireAttackPattern.FireShot;
 	}
+
+	
 
 	// 攻撃技(火)
 	private void FireShot()
 	{
+		// 歩くのを止める
+		m_isStop = true;
 
+		// アニメーションをする
+		m_animator.SetTrigger("FireShot");
+
+		// 次の攻撃に切り替える
+		m_attackPattern = (int)FireAttackPattern.FireBreath;
 	}
 
 	// 属性チェンジ
