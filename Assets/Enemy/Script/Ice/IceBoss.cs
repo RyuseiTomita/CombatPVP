@@ -66,21 +66,22 @@ public class IceBoss : MonoBehaviour
 	// エフェクトの切り替え
 	public void IceEffectChange(bool ice)
 	{
-		if (!ice)
-		{
-			m_iceEffects[(int)IceEffectType.IceChange].SetActive(false);
-		}
-		else
+		if(ice)
 		{
 			m_iceEffects[(int)IceEffectType.IceChange].SetActive(true);
 			m_predictionRangeEffect[(int)PredictionRange.IceChangeRange].SetActive(true);
+		}
+		else
+		{
+			m_iceEffects[(int)IceEffectType.IceChange].SetActive(false);
+			m_predictionRangeEffect[(int)PredictionRange.IceChangeRange].SetActive(false);
 		}
 	}
 
 	IEnumerator ChangeAttackEffect()
 	{
-		yield return new WaitForSeconds(2);
-		m_iceEffects[(int)IceEffectType.IceChangeAttack].SetActive(true);
+		yield return new WaitForSeconds(1);
+		m_iceEffects[(int)IceEffectType.IceChangeAttack].SetActive(false);
 	}
 		
 
@@ -133,7 +134,4 @@ public class IceBoss : MonoBehaviour
 		m_iceEffects[(int)IceEffectType.FrostBurstAttackEffect].SetActive(false);
 		Debug.Log("AAA");
 	}
-
-
-
 }

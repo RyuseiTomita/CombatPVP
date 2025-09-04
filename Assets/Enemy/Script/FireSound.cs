@@ -19,7 +19,8 @@ public class FireSound : MonoBehaviour
 		FireBreathAnimationSound,
 		FireBreathRangeSound,
 		FireBreathAttackSound,
-		FireShotCharge,
+		FireShotChargeSound,
+		FireShotAttackSound
 	}
 
 	[SerializeField] List<FireSoundData> m_fireSounds;

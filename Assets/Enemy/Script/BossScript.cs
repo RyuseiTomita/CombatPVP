@@ -278,6 +278,8 @@ public class BossScript : MonoBehaviour
 
 		// エフェクトを消す
 		m_model[(int)ModelType.IceModel].GetComponent<IceBoss>().IceEffectChange(false);
+		m_model[(int)ModelType.FireModel].GetComponent<FireBoss>().FireEffectChange(false);
+
 
 		// 次の変身時間まで
 		m_modelTime = 15f;

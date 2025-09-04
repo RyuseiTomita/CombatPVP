@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 using static IceBoss;
 
 public class FireBoss : MonoBehaviour
@@ -13,6 +14,9 @@ public class FireBoss : MonoBehaviour
 	bool m_isFireBreath = false;
 	GameObject[] m_fireBreathAttack = new GameObject[10];
 
+	bool m_isFireShot;
+	float m_fireShotTime;
+
 	// 攻撃エフェクト
 	[SerializeField]
 	GameObject[] m_fireEffects;
@@ -20,6 +24,9 @@ public class FireBoss : MonoBehaviour
 	// 攻撃予測範囲エフェクト
 	[SerializeField]
 	GameObject[] m_predictionRangeEffect;
+
+	[SerializeField]
+	BossScript m_bossScript;
 
 	Transform m_player;
 	FireSound m_fireSound;
@@ -49,19 +56,36 @@ public class FireBoss : MonoBehaviour
 	{
 		m_fireBreathIndex = 0;
 		m_fireBreathCoolTime = 1f;
+
+		m_fireShotTime = 1f;
 	}
 
 	public void FireEffectChange(bool fire)
 	{
-		if (!fire) m_fireEffects[(int)FireEffectType.FireChangeEffect].SetActive(false);
-
-		else m_fireEffects[(int)FireEffectType.FireChangeEffect].SetActive(true);
+		if(fire)
+		{
+			m_fireEffects[(int)FireEffectType.FireChangeEffect].SetActive(true);
+			m_predictionRangeEffect[(int)PredictionRange.FireChangeRange].SetActive(true);
+		}
+		else
+		{
+			m_fireEffects[(int)FireEffectType.FireChangeEffect].SetActive(false);
+			m_predictionRangeEffect[(int)PredictionRange.FireChangeRange].SetActive(false);
+		}
 	}
-	
+
 	public void ModelChange()
 	{
 		m_fireSound.Play2D(FireSound.FireType.FireChangeSound);
 		m_fireEffects[(int)FireEffectType.FireChangeAttackEffect].SetActive(true);
+
+		StartCoroutine(FireChangeAttackEnd());
+	}
+
+	IEnumerator FireChangeAttackEnd()
+	{
+		yield return new WaitForSeconds(2);
+		m_fireEffects[(int)FireEffectType.FireChangeAttackEffect].SetActive(false);
 	}
 
 	public void FireBreathSound()
@@ -138,18 +162,22 @@ public class FireBoss : MonoBehaviour
 
 	public void FireEffectEnd()
 	{
-		m_predictionRangeEffect[(int)PredictionRange.FireShotRange].SetActive(false);
+		
 	}
 
 	public void FireShotAnimationSound()
 	{
-		m_fireSound.Play2D(FireSound.FireType.FireShotCharge);
+		m_fireSound.Play2D(FireSound.FireType.FireShotChargeSound);
+		StartCoroutine(FireShotAttack());
 	}
 
 	IEnumerator FireShotAttack()
 	{
-		yield return new WaitForSeconds(2);
+		yield return new WaitForSeconds(1.5f);
 		m_fireEffects[(int)FireEffectType.FireShotAttackEffect].SetActive(true);
+		m_predictionRangeEffect[(int)PredictionRange.FireShotRange].SetActive(false);
+		m_isFireShot = true;
+		m_fireSound.Play2D(FireSound.FireType.FireShotAttackSound);
 	}
 
 	// Update is called once per frame
@@ -158,6 +186,19 @@ public class FireBoss : MonoBehaviour
         if(m_isFireBreath)
 		{
 			FireBreathEffect();
+		}
+
+		if(m_isFireShot)
+		{
+			m_fireShotTime -= Time.deltaTime;
+			
+			if(m_fireShotTime <= 0)
+			{
+				m_fireEffects[(int)FireEffectType.FireShotAttackEffect].SetActive(false);
+				m_isFireShot = false;
+				m_fireShotTime = 1f;
+				m_bossScript.EnemyMove();
+			}
 		}
     }
 }
